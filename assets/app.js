@@ -98,6 +98,32 @@ const defaultVineyards = [
 ];
 
 const STORAGE_KEY = "vineyard-app:data";
+const AUTH_STORAGE_KEY = "vineyard-app:auth";
+const AUTHORIZED_USERS = [
+  { username: "admin", password: "vineyard2024" },
+  { username: "manager", password: "cellarpass" },
+];
+
+function loadAuthState() {
+  try {
+    return sessionStorage.getItem(AUTH_STORAGE_KEY) === "true";
+  } catch (error) {
+    console.warn("Unable to read authentication state", error);
+    return false;
+  }
+}
+
+function persistAuthState(value) {
+  try {
+    if (value) {
+      sessionStorage.setItem(AUTH_STORAGE_KEY, "true");
+    } else {
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+  } catch (error) {
+    console.warn("Unable to persist authentication state", error);
+  }
+}
 
 function loadVineyards() {
   try {
@@ -122,6 +148,25 @@ function saveVineyards(data) {
 
 let vineyards = loadVineyards();
 let selectedVineyardId = null;
+let authenticated = loadAuthState();
+
+function isAuthenticated() {
+  return authenticated;
+}
+
+function setAuthenticated(value) {
+  authenticated = Boolean(value);
+  persistAuthState(authenticated);
+  updateAdminToggleState();
+}
+
+function authenticateUser(username, password) {
+  const normalizedUsername = username.trim().toLowerCase();
+  return AUTHORIZED_USERS.find(
+    (user) =>
+      user.username.toLowerCase() === normalizedUsername && user.password === password
+  );
+}
 
 const map = L.map("map", {
   zoomControl: false,
@@ -317,9 +362,27 @@ const adminNewButton = document.querySelector("[data-admin-new]");
 const adminForm = document.querySelector("[data-admin-form]");
 const adminDelete = document.querySelector("[data-admin-delete]");
 const adminPanelTitle = document.getElementById("admin-panel-title");
+const adminLogout = document.querySelector("[data-admin-logout]");
+const loginPanel = document.getElementById("login-panel");
+const loginForm = document.querySelector("[data-login-form]");
+const loginError = document.querySelector("[data-login-error]");
+const loginCloseButtons = document.querySelectorAll("[data-login-close]");
 
 let editingVineyardId = null;
 let lastFocusedButton = null;
+let loginLastFocusedElement = null;
+
+function updateAdminToggleState() {
+  if (!adminToggle) return;
+  adminToggle.dataset.authenticated = isAuthenticated() ? "true" : "false";
+  adminToggle.setAttribute("aria-pressed", isAuthenticated() ? "true" : "false");
+  adminToggle.setAttribute(
+    "aria-label",
+    isAuthenticated()
+      ? "Open admin panel to manage vineyards"
+      : "Sign in to access the vineyard administration panel"
+  );
+}
 
 function slugify(input) {
   return input
@@ -342,8 +405,40 @@ function generateId(name) {
   }
 }
 
+function openLoginPanel() {
+  if (!loginPanel) return;
+  loginLastFocusedElement = document.activeElement;
+  loginPanel.hidden = false;
+  loginPanel.setAttribute("aria-hidden", "false");
+  loginError && (loginError.textContent = "");
+  const usernameField = loginForm?.elements.namedItem("username");
+  if (usernameField instanceof HTMLElement) {
+    usernameField.focus({ preventScroll: true });
+  } else {
+    const heading = loginPanel.querySelector("h2");
+    heading?.focus({ preventScroll: true });
+  }
+}
+
+function closeLoginPanel() {
+  if (!loginPanel) return;
+  loginPanel.hidden = true;
+  loginPanel.setAttribute("aria-hidden", "true");
+  loginForm?.reset();
+  if (loginError) {
+    loginError.textContent = "";
+  }
+  if (loginLastFocusedElement instanceof HTMLElement) {
+    loginLastFocusedElement.focus({ preventScroll: true });
+  }
+}
+
 function openAdminPanel() {
   if (!adminPanel) return;
+  if (!isAuthenticated()) {
+    openLoginPanel();
+    return;
+  }
   lastFocusedButton = document.activeElement;
   adminPanel.hidden = false;
   adminPanel.setAttribute("aria-hidden", "false");
@@ -488,6 +583,18 @@ adminPanel?.addEventListener("click", (event) => {
   }
 });
 
+loginCloseButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    closeLoginPanel();
+  });
+});
+
+loginPanel?.addEventListener("click", (event) => {
+  if (event.target === loginPanel) {
+    closeLoginPanel();
+  }
+});
+
 adminList?.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-admin-item]");
   if (!button) return;
@@ -594,8 +701,46 @@ adminDelete?.addEventListener("click", () => {
   alert(`Deleted ${vineyard.name}.`);
 });
 
+loginForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const formData = new FormData(loginForm);
+  const username = (formData.get("username") || "").toString();
+  const password = (formData.get("password") || "").toString();
+
+  const match = authenticateUser(username, password);
+
+  if (!match) {
+    if (loginError) {
+      loginError.textContent = "Incorrect username or password. Please try again.";
+    }
+    const passwordField = loginForm.elements.namedItem("password");
+    if (passwordField instanceof HTMLElement) {
+      passwordField.focus({ preventScroll: true });
+    }
+    return;
+  }
+
+  setAuthenticated(true);
+  closeLoginPanel();
+  alert(`Welcome, ${match.username}!`);
+  openAdminPanel();
+});
+
+adminLogout?.addEventListener("click", () => {
+  setAuthenticated(false);
+  closeAdminPanel();
+  alert("You have been signed out.");
+});
+
 window.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && adminPanel && !adminPanel.hidden) {
-    closeAdminPanel();
+  if (event.key === "Escape") {
+    if (adminPanel && !adminPanel.hidden) {
+      closeAdminPanel();
+    }
+    if (loginPanel && !loginPanel.hidden) {
+      closeLoginPanel();
+    }
   }
 });
+
+updateAdminToggleState();

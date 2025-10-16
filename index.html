@@ -37,6 +37,63 @@
   </footer>
 
   <section
+    id="login-panel"
+    class="login-panel"
+    aria-hidden="true"
+    hidden
+  >
+    <div
+      class="login-panel__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="login-panel-title"
+    >
+      <header class="login-panel__header">
+        <h2 id="login-panel-title" tabindex="-1">Administrator access</h2>
+        <button
+          type="button"
+          class="login-panel__close"
+          aria-label="Close login"
+          data-login-close
+        >
+          &times;
+        </button>
+      </header>
+      <form class="login-panel__form" data-login-form>
+        <p class="login-panel__intro">
+          Sign in with the credentials provided to your vineyard operations team to
+          unlock the administration workspace.
+        </p>
+        <label>
+          Username
+          <input
+            type="text"
+            name="username"
+            autocomplete="username"
+            required
+            placeholder="admin"
+          />
+        </label>
+        <label>
+          Password
+          <input
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+            placeholder="••••••••"
+          />
+        </label>
+        <p class="login-panel__error" data-login-error aria-live="assertive"></p>
+        <div class="login-panel__actions">
+          <button type="submit" class="button button--primary">Sign in</button>
+          <button type="button" class="button" data-login-close>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section
     id="admin-panel"
     class="admin-panel"
     aria-hidden="true"
@@ -50,14 +107,19 @@
     >
       <header class="admin-panel__header">
         <h2 id="admin-panel-title" tabindex="-1">Manage vineyards</h2>
-        <button
-          type="button"
-          class="admin-panel__close"
-          aria-label="Close admin panel"
-          data-admin-close
-        >
-          &times;
-        </button>
+        <div class="admin-panel__header-actions">
+          <button type="button" class="button" data-admin-logout>
+            Log out
+          </button>
+          <button
+            type="button"
+            class="admin-panel__close"
+            aria-label="Close admin panel"
+            data-admin-close
+          >
+            &times;
+          </button>
+        </div>
       </header>
       <div class="admin-panel__body">
         <aside class="admin-panel__sidebar">

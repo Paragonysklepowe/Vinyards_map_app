@@ -16,12 +16,18 @@ This project is a static site with no build step. To view it locally:
 - Responsive layout with curated image galleries
 - Quick navigation list to jump between vineyard profiles
 - Built-in admin panel to add, edit, or delete vineyard entries stored in your browser
+- Protected administration workspace that requires an authorized sign-in before changes can be made
 
 ## Admin panel
 
-- Select **Manage vineyards** to open the administrative workspace.
-- Choose an existing entry on the left to edit, or use **Add new vineyard** to start from scratch.
+- Select **Manage vineyards**. If you have not signed in during this browser session you'll be prompted for credentials before the admin workspace opens.
+- The sample credentials bundled with the demo are:
+  - Username: `admin`
+  - Password: `vineyard2024`
+  - (Alternate account) Username: `manager`, Password: `cellarpass`
+- Once signed in, choose an existing entry on the left to edit, or use **Add new vineyard** to start from scratch.
 - Fields accept multiple highlights and image URLs entered one per line.
+- Use the **Log out** button in the admin header to end your session. Authentication status is stored in `sessionStorage`, so closing the browser tab will also sign you out.
 - Changes are saved to `localStorage` in your browser so they persist between visits. Use your browser's storage tools to reset to the default dataset if needed.
 
 ## Credits
