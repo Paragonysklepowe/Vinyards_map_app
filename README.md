@@ -30,6 +30,18 @@ This project is a static site with no build step. To view it locally:
 - Use the **Log out** button in the admin header to end your session. Authentication status is stored in `sessionStorage`, so closing the browser tab will also sign you out.
 - Changes are saved to `localStorage` in your browser so they persist between visits. Use your browser's storage tools to reset to the default dataset if needed.
 
+### Customizing vineyard data
+
+- The default dataset is defined near the top of `assets/app.js` in the `defaultVineyards` array. Update these entries to ship your own properties with the application bundle.
+- Edits made through the admin UI are written to `localStorage` under the key `vineyardData`. Clearing that key reverts the app to the static defaults bundled with the codebase.
+- To seed additional entries for first-time visitors, duplicate an object in the array and provide a unique `id`, coordinates, and optional gallery and highlight data.
+
+### Managing admin accounts
+
+- Authentication is handled by the `authorizedUsers` map in `assets/app.js`. Update or extend this map to distribute new credentials to authorized staff.
+- Passwords are stored in plain text for demonstration purposes. For a production deployment you should replace this logic with a secure, server-backed authentication flow and transport layer security.
+- `sessionStorage` tracks login status for the current tab only. Clearing browser session data or refreshing after logging out returns the UI to the signed-out state.
+
 ## Credits
 
 Map tiles courtesy of [OpenStreetMap](https://www.openstreetmap.org/) contributors.
