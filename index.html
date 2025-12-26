@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regional Vineyards Map</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+4Z5H7ye6hEXmEUrJ8WcJ2gZ8d2S5x4M2Bci2HykM="
+    crossorigin=""
+  />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Discover Regional Vineyards</h1>
+    <p>
+      Explore the map to find vineyards, browse their highlights, and plan your
+      next wine country getaway.
+    </p>
+    <button class="button button--primary" type="button" data-admin-toggle>
+      Manage vineyards
+    </button>
+  </header>
+  <main class="app-layout">
+    <section id="map" aria-label="Vineyard locations"></section>
+    <aside class="details" aria-live="polite">
+      <div id="details-content" class="details__content">
+        <h2>Choose a Vineyard</h2>
+        <p>Select a marker on the map to see more about each vineyard.</p>
+      </div>
+    </aside>
+  </main>
+  <footer class="app-footer">
+    <p>Data curated for wine tourism trip planning.</p>
+  </footer>
+
+  <section
+    id="login-panel"
+    class="login-panel"
+    aria-hidden="true"
+    hidden
+  >
+    <div
+      class="login-panel__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="login-panel-title"
+    >
+      <header class="login-panel__header">
+        <h2 id="login-panel-title" tabindex="-1">Administrator access</h2>
+        <button
+          type="button"
+          class="login-panel__close"
+          aria-label="Close login"
+          data-login-close
+        >
+          &times;
+        </button>
+      </header>
+      <form class="login-panel__form" data-login-form>
+        <p class="login-panel__intro">
+          Sign in with the credentials provided to your vineyard operations team to
+          unlock the administration workspace.
+        </p>
+        <label>
+          Username
+          <input
+            type="text"
+            name="username"
+            autocomplete="username"
+            required
+            placeholder="admin"
+          />
+        </label>
+        <label>
+          Password
+          <input
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+            placeholder="••••••••"
+          />
+        </label>
+        <p class="login-panel__error" data-login-error aria-live="assertive"></p>
+        <div class="login-panel__actions">
+          <button type="submit" class="button button--primary">Sign in</button>
+          <button type="button" class="button" data-login-close>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section
+    id="admin-panel"
+    class="admin-panel"
+    aria-hidden="true"
+    hidden
+  >
+    <div
+      class="admin-panel__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="admin-panel-title"
+    >
+      <header class="admin-panel__header">
+        <h2 id="admin-panel-title" tabindex="-1">Manage vineyards</h2>
+        <div class="admin-panel__header-actions">
+          <button type="button" class="button" data-admin-logout>
+            Log out
+          </button>
+          <button
+            type="button"
+            class="admin-panel__close"
+            aria-label="Close admin panel"
+            data-admin-close
+          >
+            &times;
+          </button>
+        </div>
+      </header>
+      <div class="admin-panel__body">
+        <aside class="admin-panel__sidebar">
+          <div class="admin-panel__actions">
+            <button type="button" class="button" data-admin-new>
+              Add new vineyard
+            </button>
+          </div>
+          <ul class="admin-panel__list" data-admin-list></ul>
+        </aside>
+        <form class="admin-panel__form" data-admin-form>
+          <fieldset>
+            <legend>Basics</legend>
+            <label>
+              Name
+              <input name="name" type="text" required placeholder="Estate name" />
+            </label>
+            <label>
+              Appellation
+              <input name="appellation" type="text" placeholder="AVA or region" />
+            </label>
+            <div class="admin-panel__grid">
+              <label>
+                Latitude
+                <input
+                  name="latitude"
+                  type="number"
+                  step="any"
+                  required
+                  placeholder="38.45"
+                />
+              </label>
+              <label>
+                Longitude
+                <input
+                  name="longitude"
+                  type="number"
+                  step="any"
+                  required
+                  placeholder="-122.67"
+                />
+              </label>
+            </div>
+            <label>
+              Description
+              <textarea
+                name="description"
+                rows="3"
+                placeholder="Overview of the vineyard experience"
+              ></textarea>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Highlights &amp; Media</legend>
+            <label>
+              Highlights
+              <textarea
+                name="highlights"
+                rows="3"
+                placeholder="Add each highlight on a new line"
+              ></textarea>
+            </label>
+            <label>
+              Image URLs
+              <textarea
+                name="images"
+                rows="3"
+                placeholder="Paste one image URL per line"
+              ></textarea>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Contact</legend>
+            <label>
+              Address
+              <input name="address" type="text" placeholder="Street, city" />
+            </label>
+            <label>
+              Phone
+              <input name="phone" type="tel" placeholder="(707) 555-0100" />
+            </label>
+            <label>
+              Email
+              <input name="email" type="email" placeholder="hello@example.com" />
+            </label>
+            <label>
+              Website
+              <input name="website" type="url" placeholder="https://" />
+            </label>
+          </fieldset>
+
+          <div class="admin-panel__footer">
+            <button type="submit" class="button button--primary">
+              Save vineyard
+            </button>
+            <button type="button" class="button button--danger" data-admin-delete>
+              Delete vineyard
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1j7kPwcPp1G8zWcB1F5HqQiyO9gH6Fp+9Dlt0XgQ="
+    crossorigin=""
+  ></script>
+  <script src="assets/app.js" type="module"></script>
+</body>
+</html>
